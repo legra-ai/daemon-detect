@@ -1,0 +1,40 @@
+[package]
+name = "daemon-detect"
+version = "0.1.0"
+description = "Detect whether the current process runs as an OS daemon (launchd, systemd, Windows service) and derive its service label and scope"
+authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
+edition = "2024"
+rust-version = "1.89"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/legra-ai/daemon-detect"
+documentation = "https://docs.rs/daemon-detect"
+readme = "README.md"
+build = "build.rs"
+keywords = ["daemon", "service", "systemd", "launchd", "detection"]
+categories = ["os", "config"]
+include = [
+    "Cargo.toml",
+    "README.md",
+    "LICENSE-APACHE",
+    "LICENSE-MIT",
+    "build.rs",
+    "src/**/*.rs",
+]
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[build-dependencies]
+rhusky = "0.0.6"
+
+[lints.rust]
+missing_docs = "deny"
+unreachable_pub = "deny"
+
+[lints.rustdoc]
+missing_crate_level_docs = "deny"
+broken_intra_doc_links = "deny"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
