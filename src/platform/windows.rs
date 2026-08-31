@@ -15,8 +15,8 @@ use crate::state::{
 pub(crate) fn is_daemon_impl(markers: &DaemonMarkers) -> bool {
     markers
         .windows_service_env
-        .as_deref()
-        .is_some_and(|variable| std::env::var_os(variable).is_some())
+        .as_ref()
+        .is_some_and(|variable| std::env::var_os(variable.as_str()).is_some())
 }
 
 /// Full detection. Windows services are always system-scoped.

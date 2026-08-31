@@ -4,6 +4,7 @@ mod identity;
 mod markers;
 mod platform;
 mod state;
+mod values;
 
 #[cfg(test)]
 mod tests;
@@ -14,4 +15,12 @@ pub use platform::systemd_available;
 pub use state::{
     DaemonServiceMode,
     DaemonState,
+};
+pub use values::{
+    BinaryName,
+    EnvVarName,
+    InvalidServiceValue,
+    LaunchdLabelPrefix,
+    ServiceAccountName,
+    ServiceInstance,
 };

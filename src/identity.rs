@@ -2,6 +2,11 @@
 
 use crate::markers::DaemonMarkers;
 use crate::state::DaemonState;
+use crate::values::{
+    BinaryName,
+    LaunchdLabelPrefix,
+    ServiceInstance,
+};
 
 /// How this process is named as an OS service.
 ///
@@ -11,28 +16,28 @@ use crate::state::DaemonState;
 /// multiple service instances.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ServiceIdentity {
-    binary_name: String,
-    launchd_prefix: String,
-    instance: String,
+    binary_name: BinaryName,
+    launchd_prefix: LaunchdLabelPrefix,
+    instance: ServiceInstance,
 }
 
 impl ServiceIdentity {
-    /// Describe a service instance.
+    /// Describe a service instance from already-validated values.
     ///
     /// - `binary_name` — the installed binary, e.g. `my-daemon`;
     /// - `launchd_prefix` — the reverse-DNS launchd prefix, e.g.
     ///   `com.example.my-daemon`;
     /// - `instance` — the per-instance suffix, e.g. an HTTP port or a node
-    ///   identity key.
+    ///   identity key. A `u16` port converts directly.
     #[must_use]
     pub fn new(
-        binary_name: impl Into<String>,
-        launchd_prefix: impl Into<String>,
-        instance: impl Into<String>,
+        binary_name: BinaryName,
+        launchd_prefix: LaunchdLabelPrefix,
+        instance: impl Into<ServiceInstance>,
     ) -> Self {
         Self {
-            binary_name: binary_name.into(),
-            launchd_prefix: launchd_prefix.into(),
+            binary_name,
+            launchd_prefix,
             instance: instance.into(),
         }
     }

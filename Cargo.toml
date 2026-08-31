@@ -1,6 +1,6 @@
 [package]
 name = "daemon-detect"
-version = "0.1.0"
+version = "0.2.0"
 description = "Detect whether the current process runs as an OS daemon (launchd, systemd, Windows service) and derive its service label and scope"
 authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
 edition = "2024"

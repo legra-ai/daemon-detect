@@ -1,20 +1,25 @@
 //! The caller-supplied indicators that identify a daemon environment.
 
+use crate::values::{
+    EnvVarName,
+    ServiceAccountName,
+};
+
 /// Environment markers that count as evidence the process is a daemon.
 ///
 /// Two kinds of evidence are configurable on top of the built-in
 /// parent-process heuristics (parent PID 1 on Unix; on Windows, the
 /// built-ins alone never fire — supply an environment marker):
 ///
-/// - **Service accounts** — user account names whose effective UID marks the
-///   process as a system daemon on Unix (e.g. `_mydaemon` on macOS, `mydaemon`
-///   on Linux).
-/// - **A Windows service environment variable** — a variable the service
-///   wrapper injects into the daemon's environment.
+/// - **Service accounts** — validated account names whose effective UID marks
+///   the process as a system daemon on Unix (e.g. `_mydaemon` on macOS,
+///   `mydaemon` on Linux).
+/// - **A Windows service environment variable** — a validated variable name the
+///   service wrapper injects into the daemon's environment.
 #[derive(Debug, Clone, Default)]
 pub struct DaemonMarkers {
-    pub(crate) service_accounts: Vec<String>,
-    pub(crate) windows_service_env: Option<String>,
+    pub(crate) service_accounts: Vec<ServiceAccountName>,
+    pub(crate) windows_service_env: Option<EnvVarName>,
 }
 
 impl DaemonMarkers {
@@ -25,19 +30,19 @@ impl DaemonMarkers {
         Self::default()
     }
 
-    /// Add a Unix service-account name whose effective UID marks the
+    /// Add a Unix service account whose effective UID marks the
     /// process as a system daemon.
     #[must_use]
-    pub fn service_account(mut self, name: impl Into<String>) -> Self {
-        self.service_accounts.push(name.into());
+    pub fn service_account(mut self, name: ServiceAccountName) -> Self {
+        self.service_accounts.push(name);
         self
     }
 
     /// Set the environment variable that a Windows service wrapper
     /// injects; its presence marks the process as a service.
     #[must_use]
-    pub fn windows_service_env(mut self, variable: impl Into<String>) -> Self {
-        self.windows_service_env = Some(variable.into());
+    pub fn windows_service_env(mut self, variable: EnvVarName) -> Self {
+        self.windows_service_env = Some(variable);
         self
     }
 

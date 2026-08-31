@@ -24,18 +24,28 @@ process metadata with no process spawning:
 ## Usage
 
 ```rust
-use daemon_detect::{DaemonMarkers, ServiceIdentity, systemd_available};
+use daemon_detect::{
+    BinaryName, DaemonMarkers, EnvVarName, LaunchdLabelPrefix, ServiceAccountName,
+    ServiceIdentity, systemd_available,
+};
 
+# fn main() -> Result<(), daemon_detect::InvalidServiceValue> {
 let markers = DaemonMarkers::new()
-    .service_account("_mydaemon") // macOS convention
-    .service_account("mydaemon") // Linux convention
-    .windows_service_env("MY_DAEMON_SERVICE");
+    .service_account(ServiceAccountName::try_new("_mydaemon")?) // macOS convention
+    .service_account(ServiceAccountName::try_new("mydaemon")?) // Linux convention
+    .windows_service_env(EnvVarName::try_new("MY_DAEMON_SERVICE")?);
 
 // Quick check for early startup decisions:
 let daemonized = markers.is_daemon();
 
-// Full detection with a derived service label:
-let identity = ServiceIdentity::new("my-daemon", "com.example.my-daemon", "7476");
+// Full detection with a derived service label. Every value is
+// validated at construction, so a malformed account name, label
+// segment, or instance can never reach the OS surface:
+let identity = ServiceIdentity::new(
+    BinaryName::try_new("my-daemon")?,
+    LaunchdLabelPrefix::try_new("com.example.my-daemon")?,
+    7476_u16, // ports convert directly into a ServiceInstance
+);
 let state = identity.detect(&markers);
 if state.is_daemon {
     println!(
@@ -52,11 +62,18 @@ assert_eq!(identity.windows_service_name(), "my-daemon-7476");
 
 let _ = daemonized;
 let _ = systemd_available();
+# Ok(())
+# }
 ```
 
 `ServiceIdentity` carries the binary name (systemd and Windows labels), a
 reverse-DNS launchd prefix, and an instance discriminator (a port, an
-identity key, …) so one binary can run several service instances.
+identity key, …) so one binary can run several service instances. Each is
+a validated type — `BinaryName`, `LaunchdLabelPrefix`, `ServiceInstance`,
+`ServiceAccountName`, `EnvVarName` — whose `try_new` enforces the limits
+of the OS surface it is handed to (length bounds, ASCII-graphic content,
+and the separator characters of passwd entries, environment blocks,
+systemd template units, and launchd labels).
 `DaemonState::service_mode` distinguishes system-scoped services (root or
 a configured service account) from per-user ones (`launchctl` agents,
 `systemd --user`).

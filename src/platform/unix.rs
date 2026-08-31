@@ -49,6 +49,8 @@ fn is_service_account_uid(markers: &DaemonMarkers) -> bool {
     }
     for name in &markers.service_accounts {
         let Ok(c_name) = CString::new(name.as_str()) else {
+            // Unreachable: validated names are ASCII graphic, so they
+            // contain no interior NUL.
             continue;
         };
         // SAFETY: c_name is a valid NUL-terminated string; getpwnam
